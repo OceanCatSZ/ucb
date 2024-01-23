@@ -17,7 +17,7 @@ def test_algorithm(ucb, arms, num_sims, steps):
             
             # Selection of best arm
             chosen_arm = ucb.bestarm()
-            chosen_arms[index] = chosen_arm
+            chosen_arms[sim][index] = chosen_arm
             
             # Engage chosen the best Arm and obtain reward info
             reward = arms[chosen_arm].calculate()
