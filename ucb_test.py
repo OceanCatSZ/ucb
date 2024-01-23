@@ -1,6 +1,7 @@
 from ucb_algo import ucb
 
 def test_algorithm(ucb, arms, num_sims, steps):
+    # arms are distrubutions, generating random numbers
     
     chosen_arms = [[0.0] * steps] * num_sims
     rewards = [[0.0] * steps] * num_sims
