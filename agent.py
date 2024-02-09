@@ -4,32 +4,31 @@ from ucb_algo import ucb
 
 class agent_object():
 
-    def initialize_agent(self, subset, name, neighbor_agents):
-        self.Sn = subset
+    def initialize_agent(self, arms, name, neighbor_agents, ideal_reward):
+        self.Sn = arms
         self.name = name
-        self.augmented_set = []
-        self.all_indices = []
-        self.chosen_arms = []
+        self.chosen_arms = [0 for i in range(0, len(self.Sn))]
         self.neighbor_agents = neighbor_agents
+        self.ideal_reward = ideal_reward
+        self.cumulative_regret = [0]
+        self.cumulative_reward = [0]
+        self.this_agent_ucb = ucb([], [])
+        self.this_agent_ucb.initialize(len(arms))
+        self.previous_counts = []
 
-    def execute_epoch(self, broadcast_set, cur_epoch_duration):
-        self.augmented_set = []
-        self.augmented_set.extend(self.Sn)
-        self.augmented_set.extend(broadcast_set)
-        self.augmented_set = list(set(self.augmented_set))
-        this_epoch_ucb = ucb([], [])
-        this_epoch_ucb.initialize(len(self.augmented_set))
-
-        self.chosen_arms = [0 for i in range(0, len(self.augmented_set))]
-
+    def execute_epoch(self, cur_epoch_duration):
+        self.previous_counts = self.this_agent_ucb.counts.copy()
         for timestep in range(0, cur_epoch_duration):
-            chosen_arm = this_epoch_ucb.bestarm()
-            chosen_arm_reward = self.augmented_set[chosen_arm].calculate()
+            chosen_arm = self.this_agent_ucb.bestarm()
+            chosen_arm_reward = self.Sn[chosen_arm].calculate()
+
+            self.cumulative_reward.extend([chosen_arm_reward + self.cumulative_reward[-1]])
 
             self.chosen_arms[chosen_arm] += 1
 
-            this_epoch_ucb.update(chosen_arm, chosen_arm_reward)
+            self.cumulative_regret.extend([self.ideal_reward - chosen_arm_reward + self.cumulative_regret[-1]])
 
-        most_played_arm = self.chosen_arms.index(max(self.chosen_arms))
+            self.this_agent_ucb.update(chosen_arm, chosen_arm_reward)
 
-        return self.augmented_set[most_played_arm]
+        x_arm = self.chosen_arms.index(max(self.chosen_arms)) # swap out with other arms
+        return x_arm
