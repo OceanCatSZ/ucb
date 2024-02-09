@@ -61,7 +61,8 @@ def execute_agents(agents_dict, arms, total_time, ideal_reward, communication):
                 # agent.this_agent_ucb.counts = cur_counts
                 # agent.this_agent_ucb.values = cur_values
                 for j in range(0, len(synched_counts)):
-                    if synched_counts[j] == 0:
+                    amount_arm_j_played = agent.chosen_arms[j] - agent.previous_counts[j]
+                    if cur_counts[j] == 0 or cur_counts[j] - amount_arm_j_played == 0:
                         continue
                     agent.this_agent_ucb.values[j] = (((synched_counts[j] - 1) / synched_counts[j]) *
                                                                agent.this_agent_ucb.values[j] +
